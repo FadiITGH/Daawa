@@ -1,0 +1,252 @@
+﻿@page "/"
+@using Daawa.BackEnd.Interfaces;
+@using Daawa.Data;
+@using Daawa.Data.Migrations;
+@using Daawa.Models;
+@using Microsoft.EntityFrameworkCore;
+
+<h2 style="font-family:Almarai; color:darkblue; text-align:center"><b>الدعاوى الجزائية</b></h2>
+<br />
+
+
+@inject IJSRuntime _js
+@inject IWebHostEnvironment _env
+@inject ApplicationDbContext _db
+@inject IDawa _Dawa
+
+
+<div style="border:solid;padding:20px;background-color:whitesmoke;border-color:lightblue;border-radius:20px;">
+    <EditForm OnValidSubmit="SaveData" Model="DawaData">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>الدعوى</label>
+                <select class="form-control" @bind="DawaData.SelectDawa">
+                    <option>اختر مقيم الدعوى من فضلك</option>
+                    <option value="Ministry">من قبل الوزارة</option>
+                    <option value="ByOthers">من قبل الغير</option>
+                    <option value="ThirdPerson">طرف ثالث</option>
+                    <option value="Other">اخرى</option>
+                </select>
+            </div>
+            <div class="col">
+                <label>رقم الدعوى</label>
+                <input @bind-value="@DawaData.DawaNumber" type="number" class="form-control" />
+            </div>
+            <div class="col">
+                <label>اسم المدعي </label>
+                <input @bind-value="@DawaData.Name1" type="text" class="form-control" />
+            </div>
+        </div>
+
+
+        <br />
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>اسم المدعى عليه</label>
+                <input @bind-value="@DawaData.Name2" type="text" class="form-control" />
+            </div>
+            <div class="col">
+                <label>موضوع الدعوى</label>
+                <input @bind-value="@DawaData.DawaSubject" type="text" class="form-control" />
+            </div>
+            <div class="col">
+                <label>نوع الدعوى</label>
+                <select class="form-control" @bind="DawaData.DawaType">
+                    <option>اختر نوع الدعوى من فضلك</option>
+                    <option value="Madani">مدني</option>
+                    <option value="Tejari">تجاري</option>
+                    <option value="QadaaEmps">قضاء موظفين</option>
+                    <option value="QadaaAdmin">قضاء اداري</option>
+                    <option value="MahkamaTahqeq">محكمة تحقيق</option>
+                    <option value="Other">اخرى</option>
+                </select>
+            </div>
+        </div>
+            @* <div class="col">
+                <label>Office</label>
+                <select class="form-control" @onchange="FilterDepData">
+                    <option>Please Select Office</option>
+                    @foreach (var item in ListOfOffices)
+                    {
+                        <option value="@item.Id">@item.OfficeName</option>
+                    }
+                </select>
+            </div>
+            <div class="col">
+                <label>Department</label>
+                <select class="form-control" @bind="EmpData.EmpDep">
+                    <option>Please Select Dept</option>
+                    @foreach (var item in ListOfFilteredDepts)
+                    {
+                        <option value="@item.Id">@item.DepName</option>
+                    }
+                </select>
+            </div> *@
+        
+        <br />
+        <div class="row">
+            <div class="col">
+                <label>اسم التشكيل</label>
+                <select class="form-control" @bind="DawaData.Dept">
+                    <option>اختر التشكيل من فضلك</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Perminant">Perminant</option>
+                    <option value="Daily Wages">Daily Wages</option>
+                    <option value="Space Man">Space Man</option>
+                </select>
+            </div>
+            <div class="col">
+                <label>المحكمة المختصة</label>
+                <input @bind-value="@DawaData.Court" type="text" class="form-control" />
+            </div>
+            <div class="col">
+                <label>رقم القرار البدائي</label>
+                <input @bind-value="@DawaData.Decision1Num" type="text" class="form-control" />
+            </div>
+        </div>
+        <div>
+            <div class="col">
+                <label>صورة القرار البدائي</label>
+                <InputFile accept=".png,.jpg,.jpeg,.pdf" class="form-control" OnChange="CheckFile" />
+            </div>
+        </div>
+        <div>
+            <div class="col">
+                <label>الملاحظات</label>
+                <input @bind-value="@DawaData.Notes" type="text" class="form-control"/>
+            </div>
+        </div>
+
+
+
+        @* <div class="col">
+                <label>City</label>
+                <select class="form-control" @bind="DawaData.City">
+                    <option>Emp City</option>
+                    <option value="Baghdad">Baghdad</option>
+                    <option value="Basra">Basra</option>
+                    <option value="Babel">Babel</option>
+                    <option value="Kut">Kut</option>
+                </select>
+            </div>
+            <div class="col">
+                <label>تاريخ التحديث</label>
+                <input type="date" class="form-control" @bind-value="DawaData.LastUpdate" />
+            </div> *@
+        
+        
+
+       @*  <br />
+        <InputFile accept=".png,.jpg,.jpeg" class="form-control" OnChange="CheckFile" /> *@
+
+        <br />
+        <button class="btn btn-primary form-control">Save Emp</button>
+    </EditForm>
+</div>
+
+
+
+
+
+
+
+
+
+@code {
+
+        // public List<OfficeModel> ListOfOffices { get; set; } = new List<OfficeModel>();
+    public List<DepModel> ListOfDepts { get; set; } = new List<DepModel>();
+    public DaawaModel DawaData { get; set; } = new DaawaModel();
+    public List<DepModel> ListOfFilteredDepts { get; set; } = new List<DepModel>();
+
+    public InputFileChangeEventArgs UplaodedDawaImage { get; set; }
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // ListOfDawas = await _db.DawaTable.ToListAsync();
+        ListOfDepts = await _db.DeptTable.ToListAsync();  //_db.DepTable.Include(a => a.OfficeTable).ToListAsync();
+        DawaData.LastUpdate = DateTime.Now;
+    }
+
+
+    // private void FilterDepData(ChangeEventArgs args)
+    // {
+    //     var Id = int.Parse(args.Value.ToString());
+    //     ListOfFilteredDepts = ListOfDepts.Where(a => a.OfficeTableId == Id).ToList();
+    // }
+
+
+    private async Task SaveData()
+    {
+        var UserResponse = await _js.InvokeAsync<bool>("confirm", "هل تود اضافة الدعوى الى النظام؟");
+        if (UserResponse)
+        {
+            var CheckUserExists = await _Dawa.CheckIfDawaExistsInDB(DawaData.DawaNumber);
+            if (CheckUserExists is true)
+            {
+                await _js.InvokeVoidAsync("alert", $"الدعوى : {DawaData.SelectDawa} موجودة في النظام مسبقاً");
+            }
+            else
+            {
+                DawaData.Decision1ImagePath = await UploadDawaImageToFileSystem();
+                var BackEndResponse = await _Dawa.AddNewDawaToTheSystem(DawaData);
+
+                await _js.InvokeVoidAsync("alert", BackEndResponse);
+                DawaData = new DaawaModel();
+
+            }
+        }
+    }
+
+    private async Task CheckFile(InputFileChangeEventArgs UploadedFile)
+    {
+
+        //.png,.jpg,.jpeg,.pdf
+        if (UploadedFile.File.ContentType == "image/png" || UploadedFile.File.ContentType == "image/jpeg" 
+        || UploadedFile.File.ContentType == "image/pdf")
+        {
+            if (UploadedFile.File.Size > 2000000)
+            {
+                await _js.InvokeVoidAsync("alert", "يجب ان لا يزيد حجم الملف المرفق عن 5MB رجاءً");
+            }
+            else
+            {
+                await _js.InvokeVoidAsync("alert", "تم ارفاق الملف بنجاح");
+                UplaodedDawaImage = UploadedFile;
+            }
+
+        }
+        else
+        {
+            await _js.InvokeVoidAsync("alert", "نوع الملف غير مطابق");
+            return;
+        }
+    }
+
+
+
+    private async Task<string> UploadDawaImageToFileSystem()
+    {
+
+        var FileName = DawaData.SelectDawa + "_" + Guid.NewGuid().ToString() + $"{UplaodedDawaImage.File.Name}";
+        var FolderPath = $"{_env.WebRootPath}\\DawaImages";
+        var FullPath = Path.Combine(FolderPath, FileName);
+        var MemoryStream = new MemoryStream();
+        await UplaodedDawaImage.File.OpenReadStream(5000000).CopyToAsync(MemoryStream);
+
+
+        // FileMode : to give permission to the filestream to create files
+        await using (var fs = new FileStream(FullPath, FileMode.Create, FileAccess.Write))
+        {
+            MemoryStream.WriteTo(fs);
+        }
+
+        return FullPath;
+    }
+
+}

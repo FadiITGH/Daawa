@@ -1,0 +1,60 @@
+﻿﻿
+@page "/AddNewDept"
+
+@using Daawa.BackEnd.Interfaces;
+@using Daawa.Models;
+
+
+
+@inject IDepts _Dept
+@inject IJSRuntime _js
+
+<form @onsubmit="SaveDept">
+        <div class="row">
+             @* <div class="col">
+
+                  <select class="form-control" @bind="NewDep">
+                     <option>Add Department</option>
+                    @foreach (var item in ListOfAllOffices)
+                     {
+                           <option value="@item.Id">@item.OfficeName</option>
+                     }
+                 </select>
+             </div> *@
+             <div class="col">
+                    <input @bind="NewDep.DepName" type="text" placeholder="Enter The Dept Name Please :)" class="form-control" />
+             </div>
+             <div class="col">
+                    <button class="btn btn-primary form-control" type="submit">Save Dept</button>
+             </div>
+        </div>
+
+</form>
+
+
+@code{
+    // public List<OfficeModel> ListOfAllOffices { get; set; } = new List<OfficeModel>();
+    public DepModel NewDep { get; set ; } = new DepModel();
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     ListOfAllOffices = await _Office.GetAllOffices();
+    // }
+
+    // override+space+OnInitializedAsync+tab
+    private async Task SaveDept()
+    {
+        var UserResponse = await _js.InvokeAsync<bool>("confirm", "Are You sure to add the dep?");
+
+        if (UserResponse is true)
+        {
+            var BackEndResponse = await _Dept.AddNewDepartment(NewDep);
+            await _js.InvokeVoidAsync("alert", BackEndResponse);
+        }
+        else
+        {
+            return;
+        }
+    }
+    
+}
